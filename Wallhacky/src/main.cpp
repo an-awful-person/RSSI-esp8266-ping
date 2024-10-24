@@ -114,5 +114,5 @@ void loop() {
   // Clean up and free memory used by WiFi.scanNetworks
   WiFi.scanDelete();
   // delay(1000);
-  delay(100);
+  delay(10);
 }

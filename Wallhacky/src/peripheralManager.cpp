@@ -1,5 +1,6 @@
 #include <ArduinoBLE.h>
 #include "peripheralManager.h"
+#include <CompanyIdentifiers.h>
 
 
 void PeripheralManager::Setup(){
@@ -24,7 +25,8 @@ void PeripheralManager::Loop(){
         
         // Check if any Bluetooth devices are found
         if (peripheral) {
-            PeripheralInfo newInfo(peripheral.address(), peripheral.localName(), String(peripheral.rssi()));
+            const char* manufacturer = getManufacturerName(peripheral);
+            PeripheralInfo newInfo(peripheral.address(), peripheral.localName(), String(peripheral.rssi()), String(manufacturer));
             MutatePeripheralInfo(newInfo);
             //std::string res = std::string(("MAC:["+ peripheral.address() + "] NAME:["+ peripheral.localName() + "] RSSI:["+ peripheral.rssi() + "] DeviceName: [" + peripheral.deviceName() + "]").c_str());
             
@@ -76,6 +78,8 @@ String PeripheralManager::GetPeripheralsInfo() {
         result += peripheralInfos[i].GetLocalName();
         result += " RSSI: ";
         result += peripheralInfos[i].GetRSSI();
+        result += " Manufacturer: ";
+        result += peripheralInfos[i].GetManufacturer();
         result += "\n";
 
      }
