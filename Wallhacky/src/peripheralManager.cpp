@@ -3,8 +3,8 @@
 
 
 void PeripheralManager::Setup(){
-    Serial.begin(9600);
-    while (!Serial);
+    // Serial.begin(9600);
+    // while (!Serial);
 
     // Start Bluetooth scanning
     if (!BLE.begin()) {
@@ -30,7 +30,7 @@ void PeripheralManager::Loop(){
             
             //tryAddResult(std::string(peripheral.address().c_str()), res);   
         }
-        delay(50);  // Small delay before next scan
+        // delay(50);  // Small delay before next scan
     }
         PurgePeripherals();
         Serial.println(GetPeripheralsInfo());
