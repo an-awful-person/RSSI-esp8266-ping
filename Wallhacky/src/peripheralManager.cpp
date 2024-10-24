@@ -16,22 +16,25 @@ void PeripheralManager::Setup(){
 }
 
 void PeripheralManager::Loop(){
-    // Start scanning for nearby BLE devices:
-    BLE.scan();
+    for(int i=0; i<50; i++){
+         // Start scanning for nearby BLE devices:
+        BLE.scan();
 
-    BLEDevice peripheral = BLE.available();
-    
-    // Check if any Bluetooth devices are found
-    if (peripheral) {
-        PeripheralInfo newInfo(peripheral.address(), peripheral.localName(), String(peripheral.rssi()));
-        MutatePeripheralInfo(newInfo);
-        //std::string res = std::string(("MAC:["+ peripheral.address() + "] NAME:["+ peripheral.localName() + "] RSSI:["+ peripheral.rssi() + "] DeviceName: [" + peripheral.deviceName() + "]").c_str());
+        BLEDevice peripheral = BLE.available();
         
-        //tryAddResult(std::string(peripheral.address().c_str()), res);   
+        // Check if any Bluetooth devices are found
+        if (peripheral) {
+            PeripheralInfo newInfo(peripheral.address(), peripheral.localName(), String(peripheral.rssi()));
+            MutatePeripheralInfo(newInfo);
+            //std::string res = std::string(("MAC:["+ peripheral.address() + "] NAME:["+ peripheral.localName() + "] RSSI:["+ peripheral.rssi() + "] DeviceName: [" + peripheral.deviceName() + "]").c_str());
+            
+            //tryAddResult(std::string(peripheral.address().c_str()), res);   
+        }
+        delay(50);  // Small delay before next scan
     }
-    Serial.println(GetPeripheralsInfo());
-    PurgePeripherals();
-    delay(50);  // Small delay before next scan
+        PurgePeripherals();
+        Serial.println(GetPeripheralsInfo());
+   
 }
 
 void PeripheralManager::MutatePeripheralInfo(PeripheralInfo info) {
