@@ -15,6 +15,9 @@
 #include <ArduinoJson.h>
 #include <ArduinoJson.hpp>
 
+#include <esp_wifi.h>
+#include <CsiCrawler.h>
+
 const char* ssid = "Wallhack";  //your WiFi Name
 const char* password = "tinfoil1";      //Your Wifi Password
 
@@ -27,10 +30,28 @@ String url = "http://192.168.1.13:5000/api/NetworksScan/network_scan";
 
 
 PeripheralManager peripheralManager;
+CsiCrawler csiCrawler;
+
+void DefaultCsiCallback(void *ctx, wifi_csi_info_t *info) {
+        char macStr[18];
+        snprintf(macStr, sizeof(macStr), "%02X:%02X:%02X:%02X:%02X:%02X",
+           info->mac[0], info->mac[1], info->mac[2],
+           info->mac[3], info->mac[4], info->mac[5]);
+
+        CsiResource resource (String(macStr), info->rx_ctrl.channel, info->rx_ctrl.rssi);
+        csiCrawler.MutateCsiResource(resource);
+}
 
 void setup() {
-  peripheralManager.Setup();
   Serial.begin(9600);
+  csiCrawler.Start(DefaultCsiCallback);
+
+  wifi_init_config_t init_config = WIFI_INIT_CONFIG_DEFAULT();
+
+  esp_wifi_init(&init_config);
+  esp_wifi_start();
+
+  peripheralManager.Setup();
   delay(10);
   // WiFi.mode(WIFI_STA);
 
@@ -53,6 +74,8 @@ void setup() {
 
 void loop() {
   peripheralManager.Loop();
+  Serial.println(csiCrawler.GetCsiResources());
+
   Serial.println("Starting Wi-Fi scan...");
   // Perform a scan to list nearby Wi-Fi networks
   int numNetworks = WiFi.scanNetworks();
@@ -113,6 +136,6 @@ void loop() {
 
   // Clean up and free memory used by WiFi.scanNetworks
   WiFi.scanDelete();
-  // delay(1000);
+  delay(1000);
   delay(10);
 }
