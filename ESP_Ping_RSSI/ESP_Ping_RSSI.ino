@@ -34,7 +34,7 @@ void setup() {
 
   WiFi.begin(ssid, password);
 
-  String macAddressAsIDPart = WiFi.macAddress().substring(WiFi.macAddress().length() - 8);
+  String macAddressAsIDPart = WiFi.macAddress().substring(WiFi.macAddress().length() - 4);
   String actualApSSID = apSSID+macAddressAsIDPart;
   actualApSSID.replace(":","");
 
