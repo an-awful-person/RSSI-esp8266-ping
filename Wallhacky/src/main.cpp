@@ -26,10 +26,12 @@ WifiConfig wifiConfig(
   "/api/NetworksScan/"
 );
 String url = "http://192.168.1.13:5000/api/NetworksScan/network_scan";
+String bluetoothUrl = "http://192.168.1.13:5000/api/NetworksScan/set_bluetooth_network_scan";
 
 WifiScanner wifiScanner(wifiConfig, url);
 
-
+int bluetoothCounter = 0;
+int uploadBluetoothEvery = 500;
 
 
 void setup() {
@@ -46,4 +48,10 @@ void loop() {
   peripheralManager.Loop();
   wifiScanner.Loop();
   delay(50);
+
+  if(bluetoothCounter >= uploadBluetoothEvery){
+    bluetoothCounter = 0;
+    peripheralManager.PostToApi(wifiConfig, bluetoothUrl);
+  }
+  bluetoothCounter++;
 }

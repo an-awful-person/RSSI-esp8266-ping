@@ -3,6 +3,7 @@
 #include <CompanyIdentifiers.h>
 
 
+
 void PeripheralManager::Setup(){
     // Serial.begin(9600);
     // while (!Serial);
@@ -87,3 +88,55 @@ String PeripheralManager::GetPeripheralsInfo() {
     
      return result;
 }
+
+
+#include <HTTPClient.h>
+#include <WiFiClient.h>
+#include <WiFiType.h>
+
+#include <ArduinoJson.h>
+
+void PeripheralManager::PostToApi(WifiConfig wifiConfig, String url){
+
+    if(WiFi.status() == WL_CONNECTED){
+    WiFiClient client;
+    HTTPClient http;
+
+    http.begin(client, url);
+    http.addHeader("Content-Type", "application/json");
+
+    StaticJsonDocument<256> jsonDoc;
+    jsonDoc["macAddress"] = WiFi.macAddress();
+    JsonArray pingArray = jsonDoc.createNestedArray("networkPings");
+
+
+    for(int i=0; i<peripheralInfos.size(); ++i)
+    {
+        PeripheralInfo peripheralDevice = peripheralInfos[i];
+        JsonObject networkPing = pingArray.createNestedObject();
+        networkPing["ssid"] = peripheralDevice.GetAddress();
+        networkPing["bssid"] = peripheralDevice.GetManufacturer();
+        networkPing["rssi"] = peripheralDevice.GetRSSI();
+    }
+
+    String jsonPayload;
+    serializeJson(jsonDoc, jsonPayload);
+
+    Serial.println("Sending networkscan...");
+    int httpResponseCode = http.POST(jsonPayload);
+
+        // Check the response
+    if (httpResponseCode > 0) {
+      String response = http.getString();
+      Serial.println("HTTP Response code: " + String(httpResponseCode));
+      Serial.println("Response: " + response);
+    } else {
+      Serial.println("Error on sending POST: " + String(httpResponseCode));
+      Serial.println("url: "+ url);
+      Serial.println(jsonPayload);
+    }
+
+    http.end();  // Free resources
+  }
+}
+
